@@ -15,9 +15,9 @@ run: package
 	hadoop jar App.jar $(application) $(input) $(output)
 
 prepare:
-	hdfs dfs -test -d $(output)
-	if [ $? == 0 ]; then
-		hdfs dfs -rm -r $(output)
+	hdfs dfs -test -d $(output); \
+	if [ $$? == 0 ]; then \
+		hdfs dfs -rm -r $(output); \
 	fi
 
 yarn: package prepare
