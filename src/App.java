@@ -24,6 +24,7 @@ public class App
         public void map(LongWritable key, Text value, Context  context) throws IOException, InterruptedException {
             kv = value.toString().split(",");
 
+            /* emp */
             if (deptMap.containsKey(kv[3])) {
                 if (kv[2] != null && ! "".equals(kv[2].toString())) {
                     context.write(new Text(deptMap.get(kv[3].trim())), new Text(kv[2].trim()));

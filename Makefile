@@ -2,7 +2,7 @@
 src = src/App.java
 out = output
 application = App
-input = /data/inupt
+input = /data/input
 output = /data/output
 
 compile:
@@ -14,8 +14,14 @@ package: compile
 run: package
 	hadoop jar App.jar $(application) $(input) $(output)
 
-yarn: package
-	yarn jar App.jar $(application) "$(input)/*" $(output)
+prepare:
+	hdfs dfs -test -d $(output)
+	if [ $? == 0 ]; then
+		hdfs dfs -rm -r $(output)
+	fi
+
+yarn: package prepare
+	yarn jar App.jar $(application) $(input) $(output)
 
 clean:
 	rm -rf $(out)/* App.jar
