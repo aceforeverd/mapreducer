@@ -15,7 +15,7 @@ run: package
 	hadoop jar App.jar $(application) $(input) $(output)
 
 yarn: package
-	yrn App.jar $(application) "$(input)/*" $(output)
+	yarn jar App.jar $(application) "$(input)/*" $(output)
 
 clean:
 	rm -rf $(out)/* App.jar
