@@ -1,4 +1,5 @@
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -21,11 +22,32 @@ public class App
         private Map<String, String> deptMap = new HashMap<String, String>();
         private String[] kv;
 
+        protected void setup(Context context) throws Exception {
+            Path path = new Path("hdfs:/data/input/dept.txt");
+            FileSystem fs = FileSystem.get(new Configuration());
+            BufferedReader br = new BufferedReader(fs.open(path));
+            String line;
+            String[] columns;
+            while (true) {
+                line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+                columns = line.split(",");
+                if (columns.length() < 3) {
+                    continue;
+                }
+                if (!deptMap.containsKey(columns[0])) {
+                    deptMap.put(columns[0], columns[1]);
+                }
+            }
+        }
+
         public void map(LongWritable key, Text value, Context  context) throws IOException, InterruptedException {
             kv = value.toString().split(",");
 
             /* emp */
-            if (deptMap.containsKey(kv[3])) {
+            if (deptMap.containsKey(kv)) {
                 if (kv[2] != null && ! "".equals(kv[2].toString())) {
                     context.write(new Text(deptMap.get(kv[3].trim())), new Text(kv[2].trim()));
                 }
