@@ -2,7 +2,7 @@
 src = src/App.java
 out = output
 application = App
-input = /data/input
+input = /data/input/emp.txt
 output = /data/output
 
 compile:

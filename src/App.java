@@ -13,19 +13,22 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
 public class App
 {
-    public static class MapClass extends Mapper<LongWritable, Text, Text, Text> {
+    public static class MapClass extends Mapper<Object, Text, Text, LongWritable> {
         private Map<String, String> deptMap = new HashMap<String, String>();
         private String[] kv;
 
-        protected void setup(Context context) throws Exception {
+        @Override
+        protected void setup(Context context) throws IOException, InterruptedException {
             Path path = new Path("hdfs:/data/input/dept.txt");
             FileSystem fs = FileSystem.get(new Configuration());
-            BufferedReader br = new BufferedReader(fs.open(path));
+            BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(path)));
             String line;
             String[] columns;
             while (true) {
@@ -34,32 +37,33 @@ public class App
                     break;
                 }
                 columns = line.split(",");
-                if (columns.length() < 3) {
+                if (columns.length < 3) {
                     continue;
                 }
-                if (!deptMap.containsKey(columns[0])) {
-                    deptMap.put(columns[0], columns[1]);
+                if (!deptMap.containsKey(columns[0].trim())) {
+                    deptMap.put(columns[0].trim(), columns[1].trim());
                 }
             }
         }
 
-        public void map(LongWritable key, Text value, Context  context) throws IOException, InterruptedException {
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             kv = value.toString().split(",");
 
             /* emp */
-            if (deptMap.containsKey(kv)) {
+            if (deptMap.containsKey(kv[3].trim())) {
                 if (kv[2] != null && ! "".equals(kv[2].toString())) {
-                    context.write(new Text(deptMap.get(kv[3].trim())), new Text(kv[2].trim()));
+                    context.write(new Text(deptMap.get(kv[3].trim())),
+                            new LongWritable(Long.parseLong(kv[2].trim())));
                 }
             }
         }
     }
 
-    public static class Reduce extends Reducer<Text, Text, Text, LongWritable> {
-        public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+    public static class Reduce extends Reducer<Text, LongWritable, Text, LongWritable> {
+        public void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
             long sumSalary = 0;
-            for (Text val : values) {
-                sumSalary += Long.parseLong(val.toString());
+            for (LongWritable val : values) {
+                sumSalary += val.get();
             }
             context.write(key, new LongWritable(sumSalary));
         }
@@ -67,7 +71,7 @@ public class App
 
     public static void main( String[] args ) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "dept emp");
+        Job job = Job.getInstance(conf, "emp");
         job.setJarByClass(App.class);
 
         job.setMapperClass(MapClass.class);
@@ -77,8 +81,8 @@ public class App
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(LongWritable.class);
 
-        job.setInputFormatClass(TextInputFormat.class);
-        job.setOutputFormatClass(TextOutputFormat.class);
+        // job.setInputFormatClass(TextInputFormat.class);
+        // job.setOutputFormatClass(TextOutputFormat.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
