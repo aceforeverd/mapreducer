@@ -77,7 +77,13 @@ public class IOT1 {
                 if (fields[0].trim().equals("device")) {
                     type = fields[1].trim();
                 } else if (fields[0].trim().equals("value")) {
-                    sumValue += Double.parseDouble(fields[1].trim());
+                    double value;
+                    try {
+                        value = Double.parseDouble(fields[1].trim());
+                        sumValue += value;
+                    } catch (Exception e) {
+                        continue;
+                    }
                 }
             }
 
