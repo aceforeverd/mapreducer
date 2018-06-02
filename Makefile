@@ -29,7 +29,7 @@ iot1-compile:
 	javac -classpath $(HADOOP_CLASSPATH) -d $(out)/iot1 $(src)/IOT1.java
 
 iot1-package: iot1-compile
-	jar -cvf IOT1.jar -C $(out)/iot1
+	jar -cvf IOT1.jar -C $(out)/iot1 .
 
 iot1-prepare:
 	hdfs dfs -test -d "${output}/iot1"; \

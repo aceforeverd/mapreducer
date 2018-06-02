@@ -100,6 +100,8 @@ public class IOT1 {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(DoubleWritable.class);
 
+        job.setMapOutputKeyClass(IntWritable.class);
+        job.setMapOutputValueClass(Text.class);
         MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, DeviceMapper.class);
         MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, DValueMapper.class);
         FileOutputFormat.setOutputPath(job, new Path(args[2]));
