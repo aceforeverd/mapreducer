@@ -55,7 +55,7 @@ public class IOT1 {
             }
 
             /* did - value - date */
-            context.write(new IntWritable(did), new Text("value " + fields[1].trim()));
+            context.write(new IntWritable(did), new Text("value " + fields[2].trim()));
         }
     }
 
