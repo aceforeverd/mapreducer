@@ -87,7 +87,12 @@ public class IOT1 {
                 }
             }
 
-            maps.put(type, sumValue);
+            if (!maps.containsKey(type)) {
+                maps.put(type, sumValue);
+            } else {
+                double preSum = maps.get(type);
+                maps.replace(type, preSum + sumValue);
+            }
         }
 
         public void cleanup(Context context) throws IOException, InterruptedException {
