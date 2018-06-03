@@ -13,6 +13,9 @@ app-package: app-compile
 	jar -cvf App.jar -C $(out)/app .
 
 app-prepare:
+	if [ ! -d $(out)/app ]; then \
+		mkdir -p $(out)/app; \
+	fi
 	hdfs dfs -test -d "${output}/app"; \
 	if [ $$? -eq 0 ]; then \
 		hdfs dfs -rm -r "${output}/app"; \
@@ -32,6 +35,9 @@ iot1-package: iot1-compile
 	jar -cvf IOT1.jar -C $(out)/iot1 .
 
 iot1-prepare:
+	if [ ! -d $(out)/iot1 ]; then \
+		mkdir -p $(out)/iot1; \
+	fi
 	hdfs dfs -test -d "${output}/iot1"; \
 	if [ $$? -eq 0 ] ; then \
 		hdfs dfs -rm -r "${output}/iot1"; \
@@ -47,6 +53,9 @@ iot2-package: iot2-compile
 	jar -cvf IOT2.jar -C $(out)/iot2 .
 
 iot2-prepare:
+	if [ ! -d $(out)/iot2 ]; then \
+		mkdir -p $(out)/iot2; \
+	fi
 	hdfs dfs -test -d "${output}/iot2"; \
 	if [ $$? -eq 0 ] ; then \
 		hdfs dfs -rm -r "${output}/iot2"; \
