@@ -28,7 +28,7 @@ public class IOT2 {
         }
 
         public String toString() {
-            return type + "\t" + date;
+            return date + "\t" + type;
         }
     }
 
@@ -123,7 +123,7 @@ public class IOT2 {
             ReduceOutVal outVal;
             for (Text val : values) {
                 fields = val.toString().split("\\s+");
-                if (fields.length < 3) {
+                if (fields.length < 2) {
                     return;
                 }
 
