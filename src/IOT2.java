@@ -13,6 +13,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Vector;
 
 public class IOT2 {
     private static String DEVICE = "device";
@@ -67,8 +68,15 @@ public class IOT2 {
             return sum / count;
         }
 
-        public String toString() {
-            return Double.toString(sum / count);
+    }
+
+    public static class DateValue {
+        String date;
+        double value;
+
+        public DateValue(String d, double v) {
+            date = d;
+            value = v;
         }
     }
 
@@ -117,7 +125,7 @@ public class IOT2 {
             double value;
             ReduceOutKey outKey;
             ReduceOutVal outVal;
-            TreeMap<String, Double> tempMap = new TreeMap<>();
+            Vector<DateValue> tempList = new Vector<>();
             for (Text val : values) {
                 fields = val.toString().split("\\s+");
                 if (fields.length < 2) {
@@ -130,22 +138,22 @@ public class IOT2 {
                     try {
                         date = fields[1].trim();
                         value = Double.parseDouble(fields[2].trim());
-                        tempMap.put(date, value);
+                        tempList.add(new DateValue(date, value));
                     } catch (Exception e) {
                         continue;
                     }
                 }
             }
 
-            for (Map.Entry<String, Double> entry : tempMap.entrySet()) {
-                outKey = new ReduceOutKey(type, entry.getKey());
+            for (DateValue entry : tempList) {
+                outKey = new ReduceOutKey(type, entry.date);
                 if (maps.containsKey(outKey)) {
                     outVal = maps.get(outKey);
-                    outVal.add(entry.getValue());
+                    outVal.add(entry.value);
                     maps.replace(outKey, outVal);
                 } else {
                     outVal = new ReduceOutVal();
-                    outVal.add(entry.getValue());
+                    outVal.add(entry.value);
                     maps.put(outKey, outVal);
                 }
             }
