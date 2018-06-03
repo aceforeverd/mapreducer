@@ -82,11 +82,7 @@ public class IOT2 {
                 return;
             }
 
-            try {
-                id = Integer.parseInt(fields[0].trim());
-            } catch (Exception e) {
-                return;
-            }
+            id = Integer.parseInt(fields[0].trim());
 
             /* id + device + type */
             context.write(new IntWritable(id), new Text(DEVICE + " " + fields[1].trim()));
@@ -117,10 +113,11 @@ public class IOT2 {
 
         public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             String type = "";
-            String date = "";
-            double value = 0.0;
+            String date;
+            double value;
             ReduceOutKey outKey;
             ReduceOutVal outVal;
+            TreeMap<String, Double> tempMap = new TreeMap<>();
             for (Text val : values) {
                 fields = val.toString().split("\\s+");
                 if (fields.length < 2) {
@@ -130,24 +127,25 @@ public class IOT2 {
                 if (fields[0].trim().equals(DEVICE)) {
                     type = fields[1].trim();
                 } else if (fields[0].trim().equals(DVALUE)) {
-                    date = fields[1].trim();
                     try {
+                        date = fields[1].trim();
                         value = Double.parseDouble(fields[2].trim());
+                        tempMap.put(date, value);
                     } catch (Exception e) {
                         continue;
                     }
-                } else {
-                    continue;
                 }
+            }
 
-                outKey = new ReduceOutKey(type, date);
+            for (Map.Entry<String, Double> entry : tempMap.entrySet()) {
+                outKey = new ReduceOutKey(type, entry.getKey());
                 if (maps.containsKey(outKey)) {
                     outVal = maps.get(outKey);
-                    outVal.add(value);
+                    outVal.add(entry.getValue());
                     maps.replace(outKey, outVal);
                 } else {
                     outVal = new ReduceOutVal();
-                    outVal.add(value);
+                    outVal.add(entry.getValue());
                     maps.put(outKey, outVal);
                 }
             }
