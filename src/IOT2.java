@@ -106,7 +106,7 @@ public class IOT2 {
             did = Integer.parseInt(fields[0].trim());
             if (did > 0 && did < 10 && !fields[1].trim().equals("\\N")) {
                 /* did + dvalue + date + value */
-                context.write(new IntWritable(did), new Text(DVALUE + " " + fields[1] + " " + fields[2]));
+                context.write(new IntWritable(did), new Text(DVALUE + " " + fields[1].trim() + " " + fields[2].trim()));
             }
         }
     }
@@ -155,7 +155,7 @@ public class IOT2 {
 
         public void cleanup(Context context) throws IOException, InterruptedException {
             for (Map.Entry<ReduceOutKey, ReduceOutVal> entry : maps.entrySet()) {
-                context.write(new Text(entry.getKey().date + " " + entry.getKey().type),
+                context.write(new Text(entry.getKey().toString()),
                         new DoubleWritable(entry.getValue().avg()));
             }
         }
@@ -173,7 +173,7 @@ public class IOT2 {
         job.setMapOutputKeyClass(IntWritable.class);
         job.setMapOutputValueClass(Text.class);
         if (args.length < 3) {
-            System.err.println("requre Device input, Dvalue input and output path");
+            System.err.println("require Device input, Dvalue input and output path");
             System.exit(1);
         }
         MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, DeviceMapper.class);
