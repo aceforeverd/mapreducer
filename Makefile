@@ -40,7 +40,22 @@ iot1-prepare:
 iot1-yarn: iot1-package iot1-prepare
 	$(YARN) jar IOT1.jar IOT1 $(input)/device.txt $(input)/dvalues.txt $(output)/iot1
 
-compile: app-compile iot1-compile
+iot2-compile:
+	javac -classpath $(HADOOP_CLASSPATH) -d $(out)/iot2 $(src)/IOT2.java
+
+iot2-package: iot2-compile
+	jar -cvf IOT2.jar -C $(out)/iot2 .
+
+iot2-prepare:
+	hdfs dfs -test -d "${output}/iot2"; \
+	if [ $$? -eq 0 ] ; then \
+		hdfs dfs -rm -r "${output}/iot2"; \
+	fi
+
+iot2-yarn: iot2-package iot2-prepare
+	$(YARN) jar IOT2.jar IOT2 $(input)/device.txt $(input)/dvalues.txt $(output)/iot2
+
+compile: app-compile iot1-compile iot2-compile
 
 clean:
 	rm -rf $(out)/* *.jar
